@@ -80,11 +80,18 @@ class HRPolicyRAG:
                 "Add GEMINI_API_KEY to Streamlit Secrets or your .env file."
             )
 
+        # Auto-build ChromaDB if missing
         if not CHROMA_DIR.exists() or not any(CHROMA_DIR.iterdir()):
-            return False, (
-                "Knowledge base is empty. "
-                "Please place PDF files in the data/ folder and run: python ingest.py"
-            )
+            try:
+                from ingest import main as ingest_main
+                ingest_main()
+            except Exception as e:
+                return False, f"Failed to build knowledge base: {str(e)}"
+        #if not CHROMA_DIR.exists() or not any(CHROMA_DIR.iterdir()):
+        #    return False, (
+        #        "Knowledge base is empty. "
+        #        "Please place PDF files in the data/ folder and run: python ingest.py"
+        #    )
 
         try:
             self.embeddings = HuggingFaceEmbeddings(
