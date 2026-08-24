@@ -49,9 +49,19 @@ class HRPolicyRAG:
         Initialize embeddings, vector store and Gemini LLM.
         Returns (success: bool, message: str)
         """
-        api_key = os.getenv("GEMINI_API_KEY")
-        if not api_key or api_key.strip() in ("", "YOUR_GEMINI_API_KEY", "PASTE_YOUR_GEMINI_API_KEY_HERE"):
-            return False, "Gemini API key not found. Please add GEMINI_API_KEY to your .env file."
+        try:
+            api_key = st.secrets["GEMINI_API_KEY"]
+        except Exception:
+            api_key = os.getenv("GEMINI_API_KEY")
+
+        if not api_key:
+            return False, (
+                "Gemini API key not found. "
+                "Add GEMINI_API_KEY to Streamlit Secrets or .env."
+            )
+        #api_key = os.getenv("GEMINI_API_KEY")
+        #if not api_key or api_key.strip() in ("", "YOUR_GEMINI_API_KEY", "PASTE_YOUR_GEMINI_API_KEY_HERE"):
+        #    return False, "Gemini API key not found. Please add GEMINI_API_KEY to your .env file."
 
         if not CHROMA_DIR.exists() or not any(CHROMA_DIR.iterdir()):
             return False, (
